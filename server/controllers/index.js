@@ -1,6 +1,7 @@
 // pull in our models. This will automatically load the index.js from that folder
 const models = require('../models');
 
+const Dog = models.Dog.DogModel;
 const Cat = models.Cat.CatModel;
 
 // default fake data so that we have something to work with until we make a real Cat
@@ -89,6 +90,31 @@ const setName = (req, res) => {
   return res;
 };
 
+const setNameDog = (req, res) => {
+  if (!req.body.name || !req.body.breed || !req.body.age) {
+    return res.status(400).json({ error: 'firstname,lastname and beds are all required' });
+  }
+
+  // dummy JSON to insert into database
+  const dogData = {
+    name: req.body.name,
+    breed: req.body.breed,
+    age: req.body.age,
+  };
+
+  const newDog = new Dog(dogData);
+
+  const savePromise = newDog.save();
+
+  savePromise.then(() => {
+    res.json({ name: newDog.name, breed: newDog.breed, age: newDog.age });
+  });
+
+  savePromise.catch(err => res.json({ err }));
+
+  return res;
+};
+
 
 const searchName = (req, res) => {
   if (!req.query.name) {
@@ -105,6 +131,34 @@ const searchName = (req, res) => {
     }
 
     return res.json({ name: doc.name, beds: doc.bedsOwned });
+  });
+};
+
+const searchNameDog = (req, res) => {
+  if (!req.query.name) {
+    return res.json({ error: 'Name is required to perform a search' });
+  }
+
+  return Dog.findByName(req.query.name, (err, doc) => {
+    if (err) {
+      return res.json({ err }); // if error, return it
+    }
+
+    if (!doc) {
+      return res.json({ error: 'Dog Does Not Exist' });
+    }
+
+    doc.age++;
+
+    const savePromise = doc.save();
+
+    // send back the name as a success for now
+    savePromise.then(() => res.json({ name: doc.name, breed: doc.breed, age: doc.age }));
+
+    // if save error, just return an error for now
+    savePromise.catch((err) => res.json({ err }));
+
+    //return res.json({ name: doc.name, beds: doc.bedsOwned });
   });
 };
 
@@ -135,4 +189,6 @@ module.exports = {
   updateLast,
   searchName,
   notFound,
+  searchNameDog,
+  setNameDog,
 };
