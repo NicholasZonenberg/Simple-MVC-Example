@@ -25,6 +25,10 @@ const readAllCats = (req, res, callback) => {
   Cat.find(callback);
 };
 
+const readAllDogs = (req, res, callback) => {
+  Dog.find(callback);
+};
+
 const readCat = (req, res) => {
   const name1 = req.query.name;
 
@@ -39,6 +43,21 @@ const readCat = (req, res) => {
   Cat.findByName(name1, callback);
 };
 
+const readDog = (req, res) => {
+  const name1 = req.query.name;
+
+  const callback = (err, doc) => {
+    if (err) {
+      return res.json({ err });
+    }
+
+    return res.json(doc);
+  };
+
+  Dog.findByName(name1, callback);
+};
+
+
 const hostPage1 = (req, res) => {
   const callback = (err, docs) => {
     if (err) {
@@ -49,6 +68,18 @@ const hostPage1 = (req, res) => {
   };
 
   readAllCats(req, res, callback);
+};
+
+const hostPage4 = (req, res) => {
+  const callback = (err, docs) => {
+    if (err) {
+      return res.json({ err }); // if error, return it
+    }
+
+    return res.render('page4', { dogs: docs });
+  };
+
+  readAllDogs(req, res, callback);
 };
 
 const hostPage2 = (req, res) => {
@@ -148,17 +179,17 @@ const searchNameDog = (req, res) => {
       return res.json({ error: 'Dog Does Not Exist' });
     }
 
-    doc.age++;
+    const temp = doc.age + 1;
 
     const savePromise = doc.save();
 
     // send back the name as a success for now
-    savePromise.then(() => res.json({ name: doc.name, breed: doc.breed, age: doc.age }));
+    savePromise.then(() => res.json({ name: doc.name, breed: doc.breed, age: temp }));
 
     // if save error, just return an error for now
-    savePromise.catch((err) => res.json({ err }));
+    savePromise.catch(errr => res.json({ errr }));
 
-    //return res.json({ name: doc.name, beds: doc.bedsOwned });
+    return res.json({ name: doc.name, age: doc.age });
   });
 };
 
@@ -183,7 +214,9 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   readCat,
+  readDog,
   getName,
   setName,
   updateLast,
