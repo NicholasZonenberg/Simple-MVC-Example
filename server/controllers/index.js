@@ -179,17 +179,17 @@ const searchNameDog = (req, res) => {
       return res.json({ error: 'Dog Does Not Exist' });
     }
 
-    const temp = doc.age + 1;
+    doc.age++;
 
     const savePromise = doc.save();
 
     // send back the name as a success for now
-    savePromise.then(() => res.json({ name: doc.name, breed: doc.breed, age: temp }));
+    savePromise.then(() => res.json({ name: doc.name, breed: doc.breed, age: doc.age }));
 
     // if save error, just return an error for now
     savePromise.catch(errr => res.json({ errr }));
 
-    return res.json({ name: doc.name, age: doc.age });
+    return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
   });
 };
 
